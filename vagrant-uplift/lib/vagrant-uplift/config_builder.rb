@@ -7,7 +7,9 @@ module VagrantPlugins
     class UpliftConfigBuilder
 
       @@logger = nil
-      @@network_range = '192.168.4'
+      
+      @@network_range    = '192.168.4'
+      @@config_file_path = './.vagrant/uplift-vagrant'
 
       # initialize
       def initialize() 
@@ -29,9 +31,17 @@ module VagrantPlugins
         File.expand_path(File.join(current_dir, "/../scripts"))
       end
 
+      def get_config_path
+        return @@config_file_path
+      end
+
+      def set_config_path(value)
+        @@config_file_path = value
+      end
+
       # state configs
       def get_uplift_config_folder
-        path = File.expand_path('./.vagrant/uplift-vagrant/')
+        path = File.expand_path(@@config_file_path)
         FileUtils.mkdir_p path
 
         return path
