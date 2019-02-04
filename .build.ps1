@@ -6,7 +6,6 @@
 )
 
 $dirPath = $BuildRoot
-# $scriptPath = $MyInvocation.MyCommand.Name
 
 $gemFolder = "vagrant-uplift"
 
@@ -155,7 +154,6 @@ task AnalyzeModule {
                     Write-Build Green " - file   : $filePath"
                     Write-Build Green " - QA_FIX : $QA_FIX"
 
-
                     continue;
                 }
               
@@ -178,6 +176,11 @@ task AnalyzeModule {
     }
 }
 
+# Synopsis: Executes Appveyor specific setup
+task AppveyorPrepare {
+    
+}
+
 task QA AnalyzeModule
 
 task DefaultBuild PrepareGem,
@@ -191,3 +194,6 @@ task DefaultBuild PrepareGem,
 task . DefaultBuild
 
 task Release QA, DefaultBuild, PublishGem
+
+task Appveyor AppveyorPrepare,
+    DefaultBuild

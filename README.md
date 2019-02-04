@@ -3,6 +3,13 @@ This repository contains Vagrant plugin to the uplift project. The vagrant plugi
 
 The uplift project offers consistent Packer/Vagrant workflows and Vagrant boxes specifically designed for SharePoint professionals. It heavy lifts low-level details of the creation of domain controllers, SQL servers, SharePoint farms and Visual Studio installs by providing a codified workflow using Packer/Vagrant tooling.
 
+##  Build status
+| Branch  | Status | 
+| ------------- | ------------- |  
+| master| [![Build status](https://ci.appveyor.com/api/projects/status/d0uti257xjwgj5or/branch/master?svg=true)](https://ci.appveyor.com/project/SubPointSupport/uplift-vagrant/branch/master) |  
+| beta  | [![Build status](https://ci.appveyor.com/api/projects/status/d0uti257xjwgj5or/branch/beta?svg=true)](https://ci.appveyor.com/project/SubPointSupport/uplift-vagrant/branch/beta) |  
+| dev   | [![Build status](https://ci.appveyor.com/api/projects/status/d0uti257xjwgj5or/branch/dev?svg=true)](https://ci.appveyor.com/project/SubPointSupport/uplift-vagrant/branch/dev) |  
+
 ## How this works
 The uplift project is split into several repositories to address particular a piece of functionality:
 
