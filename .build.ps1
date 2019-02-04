@@ -45,7 +45,23 @@ task VersionGem {
     $stamp = $stamp.Replace(".00", ".")
     $stamp = $stamp.Replace(".0", ".")
 
-    $script:Version = "0.1.$stamp"
+    if($null -ne $env:APPVEYOR_REPO_BRANCH) {
+        Write-Build Green " [~] Running under APPVEYOR branch: $($env:APPVEYOR_REPO_BRANCH)"
+
+        if($env:APPVEYOR_REPO_BRANCH -ine "beta" -and $env:APPVEYOR_REPO_BRANCH -ine "master") {
+            Write-Build Green " skipping APPVEYOR versioning for branch: $($env:APPVEYOR_REPO_BRANCH)"
+        } else {
+            Write-Build Green " using APPVEYOR versioning for branch: $($env:APPVEYOR_REPO_BRANCH)"
+
+            ## 1902.build-no
+            $stamp = Get-Date -f "yyMM"
+            $buildNumber = $env:APPVEYOR_BUILD_NUMBER;
+
+            $script:Version = "0.2.$stamp.$buildNumber"
+        }
+    } else {
+        $script:Version = "0.1.$stamp"
+    }
 
     if ($null -ne $buildVersion ) {
         Write-Build Yello " [+] Using version from params: $buildVersion"
@@ -126,10 +142,11 @@ task PublishGem {
         $apiKeyValue   = (get-item env:$apiKeyEnvName).Value;
 
         "---" >  $apiKeyFile
-        ":rubygems_api_key: $apiKeyEnvName" >>  $apiKeyFile
+        ":rubygems_api_key: $apiKeyValue" >>  $apiKeyFile
     }
 
     exec {
+        Write-Build Green "gem push latest.gem"
         Set-Location "$buildOutput"
         pwsh -c "gem push latest.gem"
     }
@@ -195,7 +212,14 @@ task AnalyzeModule {
 
 # Synopsis: Executes Appveyor specific setup
 task AppveyorPrepare {
-    
+    Write-Build Green "ruby -v"
+    ruby -v
+
+    Write-Build Green "gem -v"
+    gem -v
+
+    Write-Build Green "bundle -v"
+    bundle  -v
 }
 
 task QA AnalyzeModule

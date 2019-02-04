@@ -1,5 +1,12 @@
 test: off
 
+environment:
+  matrix:
+    - RUBY_VERSION: 22
+
+install:
+  - set PATH=C:\Ruby%RUBY_VERSION%\bin;%PATH%
+
 build_script: 
   - ps: pwsh -c Install-Module -Name InvokeBuild -Force
   - ps: pwsh -c invoke-build Appveyor
