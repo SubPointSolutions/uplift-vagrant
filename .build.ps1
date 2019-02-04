@@ -112,6 +112,23 @@ task PublishGem {
 
     Write-Build Green "Publishing gems..."
 
+    if($null -ne $env:APPVEYOR_REPO_BRANCH) {
+        Write-Build Green " [~] Running under APPVEYOR branch: $($env:APPVEYOR_REPO_BRANCH)"
+
+        if($env:APPVEYOR_REPO_BRANCH -ine "beta" -and $env:APPVEYOR_REPO_BRANCH -ine "master") {
+            Write-Build Green " skipping publishing for branch: $($env:APPVEYOR_REPO_BRANCH)"
+            return;
+        }
+
+        $apiKeyFile = " ~/.gem/credentials"
+
+        $apiKeyEnvName = ("SPS_RUBYGEMS_API_KEY_" + $env:APPVEYOR_REPO_BRANCH)
+        $apiKeyValue   = (get-item env:$apiKeyEnvName).Value;
+
+        "---" >  $apiKeyFile
+        ":rubygems_api_key: $apiKeyEnvName" >>  $apiKeyFile
+    }
+
     exec {
         Set-Location "$buildOutput"
         pwsh -c "gem push latest.gem"
@@ -198,4 +215,5 @@ task . DefaultBuild
 task Release QA, DefaultBuild, PublishGem
 
 task Appveyor AppveyorPrepare,
-    DefaultBuildGem
+    DefaultBuildGem,
+    PublishGem
