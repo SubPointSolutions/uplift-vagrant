@@ -120,7 +120,7 @@ task PublishGem {
             return;
         }
 
-        $apiKeyFile = " ~/.gem/credentials"
+        $apiKeyFile = "~/.gem/credentials"
 
         $apiKeyEnvName = ("SPS_RUBYGEMS_API_KEY_" + $env:APPVEYOR_REPO_BRANCH)
         $apiKeyValue   = (get-item env:$apiKeyEnvName).Value;
