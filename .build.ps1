@@ -6,7 +6,6 @@
 )
 
 $dirPath = $BuildRoot
-# $scriptPath = $MyInvocation.MyCommand.Name
 
 $gemFolder = "vagrant-uplift"
 
@@ -113,6 +112,23 @@ task PublishGem {
 
     Write-Build Green "Publishing gems..."
 
+    if($null -ne $env:APPVEYOR_REPO_BRANCH) {
+        Write-Build Green " [~] Running under APPVEYOR branch: $($env:APPVEYOR_REPO_BRANCH)"
+
+        if($env:APPVEYOR_REPO_BRANCH -ine "beta" -and $env:APPVEYOR_REPO_BRANCH -ine "master") {
+            Write-Build Green " skipping publishing for branch: $($env:APPVEYOR_REPO_BRANCH)"
+            return;
+        }
+
+        $apiKeyFile = " ~/.gem/credentials"
+
+        $apiKeyEnvName = ("SPS_RUBYGEMS_API_KEY_" + $env:APPVEYOR_REPO_BRANCH)
+        $apiKeyValue   = (get-item env:$apiKeyEnvName).Value;
+
+        "---" >  $apiKeyFile
+        ":rubygems_api_key: $apiKeyEnvName" >>  $apiKeyFile
+    }
+
     exec {
         Set-Location "$buildOutput"
         pwsh -c "gem push latest.gem"
@@ -155,7 +171,6 @@ task AnalyzeModule {
                     Write-Build Green " - file   : $filePath"
                     Write-Build Green " - QA_FIX : $QA_FIX"
 
-
                     continue;
                 }
               
@@ -178,12 +193,19 @@ task AnalyzeModule {
     }
 }
 
+# Synopsis: Executes Appveyor specific setup
+task AppveyorPrepare {
+    
+}
+
 task QA AnalyzeModule
 
-task DefaultBuild PrepareGem,
+task DefaultBuildGem PrepareGem,
     VersionGem,
     BuildGem,
-    CopyGem,
+    CopyGem
+
+task DefaultBuild DefaultBuildGem,
     ShowVagrantPlugins,
     InstallGem,
     ShowVagrantPlugins
@@ -191,3 +213,7 @@ task DefaultBuild PrepareGem,
 task . DefaultBuild
 
 task Release QA, DefaultBuild, PublishGem
+
+task Appveyor AppveyorPrepare,
+    DefaultBuildGem,
+    PublishGem
