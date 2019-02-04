@@ -183,10 +183,12 @@ task AppveyorPrepare {
 
 task QA AnalyzeModule
 
-task DefaultBuild PrepareGem,
+task DefaultBuildGem PrepareGem,
     VersionGem,
     BuildGem,
-    CopyGem,
+    CopyGem
+
+task DefaultBuild DefaultBuildGem,
     ShowVagrantPlugins,
     InstallGem,
     ShowVagrantPlugins
@@ -196,4 +198,4 @@ task . DefaultBuild
 task Release QA, DefaultBuild, PublishGem
 
 task Appveyor AppveyorPrepare,
-    DefaultBuild
+    DefaultBuildGem

@@ -3,3 +3,6 @@ test: off
 build_script: 
   - ps: pwsh -c Install-Module -Name InvokeBuild -Force
   - ps: pwsh -c invoke-build Appveyor
+
+artifacts:
+  - path: 'build-output\*.gem'  
