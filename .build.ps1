@@ -35,8 +35,8 @@ task PrepareGem {
 }
 
 task VersionGem {
-    $dateStamp = Get-Date -f "yyyyMMdd"
-    $timeStamp = Get-Date -f "HHmmss"
+    $dateStamp = [System.DateTime]::UtcNow.ToString("yyyyMMdd")
+    $timeStamp = [System.DateTime]::UtcNow.ToString("HHmmss")
 
     $stamp = "$dateStamp.$timeStamp"
 
@@ -44,6 +44,8 @@ task VersionGem {
     $stamp = $stamp.Replace(".000", ".")
     $stamp = $stamp.Replace(".00", ".")
     $stamp = $stamp.Replace(".0", ".")
+
+    $script:Version = "0.1.$stamp"
 
     if($null -ne $env:APPVEYOR_REPO_BRANCH) {
         Write-Build Green " [~] Running under APPVEYOR branch: $($env:APPVEYOR_REPO_BRANCH)"
@@ -54,29 +56,29 @@ task VersionGem {
             Write-Build Green " using APPVEYOR versioning for branch: $($env:APPVEYOR_REPO_BRANCH)"
 
             ## 1902.build-no
-            $stamp = Get-Date -f "yyMM"
+            $stamp = [System.DateTime]::UtcNow.ToString("yyMM")
             $buildNumber = $env:APPVEYOR_BUILD_NUMBER;
 
             $script:Version = "0.2.$stamp.$buildNumber"
         }
-    } else {
-        $script:Version = "0.1.$stamp"
-    }
+    } 
 
     if ($null -ne $buildVersion ) {
-        Write-Build Yello " [+] Using version from params: $buildVersion"
+        Write-Build Yellow " [+] Using version from params: $buildVersion"
         $script:Version = $buildVersion
     }
 
-    $specFile = "$buildFolder/lib/vagrant-uplift/version.rb"
-    $gemFile = "$buildFolder/vagrant-uplift.gemspec"
+    $versionedFiles = @( 
+        "$buildFolder/lib/vagrant-uplift/version.rb",
+        "$buildFolder/vagrant-uplift.gemspec",
+        "$buildFolder/lib/vagrant-uplift/config_builder.rb"
+    )
 
     Write-Build Green " [~] Patching version: $($script:Version)"
-
-    Write-Build Green " - file: $specFile"
-
-    Edit-ValueInFile $specFile '0.1.0' $script:Version
-    Edit-ValueInFile $gemFile  '0.1.0' $script:Version
+    foreach($versionedFile in $versionedFiles) {
+        Write-Build Green " - file: $versionedFile"
+        Edit-ValueInFile $versionedFile '0.1.0' $script:Version
+    }
 }
 
 task BuildGem {

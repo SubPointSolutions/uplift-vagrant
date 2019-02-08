@@ -13,7 +13,7 @@ $sqlSysAdminAccounts = (Get-UpliftEnvVariable "UPLF_SQL_SYS_ADMIN_ACCOUNTS").Spl
 
 Configuration Install_SQL
 {
-    Import-DscResource -ModuleName 'xSQLServer'
+    Import-DscResource -ModuleName 'xSQLServer' -ModuleVersion "9.1.0.0" 
     Import-DscResource -ModuleName 'PSDesiredStateConfiguration'
 
     Node localhost {

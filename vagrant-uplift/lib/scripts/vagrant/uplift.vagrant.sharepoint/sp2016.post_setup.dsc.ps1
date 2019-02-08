@@ -12,8 +12,8 @@ Write-UpliftEnv
 Configuration Install_SharePointFarmTuning
 {
     Import-DscResource -ModuleName PSDesiredStateConfiguration
-    Import-DscResource -ModuleName SharePointDsc
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName SharePointDsc -ModuleVersion "1.9.0.0"
+    Import-DscResource -ModuleName xWebAdministration -ModuleVersion "1.19.0.0" 
     
     Node localhost {
 

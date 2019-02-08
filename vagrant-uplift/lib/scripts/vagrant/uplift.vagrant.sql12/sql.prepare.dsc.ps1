@@ -21,7 +21,7 @@ $instanceFeatures = Get-UpliftEnvVariable "UPLF_SQL_INSTANCE_FEATURES"
 Write-UpliftMessage "Executing prepare DSC..."
 Configuration Prepare_SQL
 {
-    Import-DscResource -ModuleName xSQLServer
+    Import-DscResource -ModuleName xSQLServer -ModuleVersion "9.1.0.0" 
 
     Node localhost {
 

@@ -24,7 +24,7 @@ Initialize-UpSPSqlServer $spSqlServerName $spSqlDbPrefix
 Configuration Install_SharePointFarm
 {
     Import-DscResource -ModuleName PSDesiredStateConfiguration
-    Import-DscResource -ModuleName SharePointDsc
+    Import-DscResource -ModuleName SharePointDsc -ModuleVersion "1.9.0.0"
 
     Node localhost {
 
