@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["SubPointSupport"]
   spec.email         = ["support@subpointsolutions.com"]
 
-  spec.summary       = 'Simplifies windows infrastructure management for your Vagrant VM'
-  spec.description   = 'Use vagrant-uplift to heavylift common windows installation rounties for DC, SQL, and SharePoint Vagrant VM'
+  spec.summary       = 'Simplified Windows infrastructure management for SharePoint professionals.'
+  spec.description   = 'Simplified Windows infrastructure management for SharePoint professionals. Easier setup of domain controllers, SQL, and SharePoint boxes.'
   spec.homepage      = "http://subpointsolutions.com/uplift"
   spec.license       = "MIT"
 

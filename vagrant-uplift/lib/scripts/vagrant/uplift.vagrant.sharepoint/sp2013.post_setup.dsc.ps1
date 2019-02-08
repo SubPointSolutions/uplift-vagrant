@@ -6,14 +6,14 @@ Import-Module Uplift.Core
 # include shared helpers from uplift.vagrant.sharepoint handler
 . "c:/windows/temp/uplift.vagrant.sharepoint/shared/sp.helpers.ps1"
 
-Write-UpliftMessage "Running SharePoint post-setup tuning..."
+Write-UpliftMessage "Running SharePoint post-setup tuning"
 Write-UpliftEnv
 
 Configuration Install_SharePointFarmTuning
 {
     Import-DscResource -ModuleName PSDesiredStateConfiguration
-    Import-DscResource -ModuleName SharePointDsc
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName SharePointDsc -ModuleVersion "1.9.0.0"
+    Import-DscResource -ModuleName xWebAdministration -ModuleVersion "1.19.0.0" 
     
     Node localhost {
 

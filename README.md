@@ -42,11 +42,44 @@ invoke-build
 ```
 
 ## Using `vagrant-uplift` plugin
-`vagrant-uplift` provides additional helpers with Vagrant configuration to simplify domain controller creation, SQL servers provision, SharePoint farm provision and VS install.
+`vagrant-uplift` provides additional helpers with Vagrant configuration to simplify domain controller creation, SQL servers provision, SharePoint farm provision.
 
-Under the hood, plugin delivers a set of `powershell` scripts and DSC configs wrapped into Ruby helpers. All scripts live under `uplift-vagrant\vagrant-uplift\lib\scripts\vagrant` folder. 
+Under the hood, plugin delivers a set of `powershell` scripts and DSC configs wrapped into Ruby helpers. Such helpers are available in the Vagrant configuration files.
 
-The plugin enables the following Vagrant configuration possible:
+The powershell scripts can be found under `uplift-vagrant\vagrant-uplift\lib\scripts\vagrant` folder with the `gem` plugin folder or in the current repository.
+All scripts live 
+
+### `vagrant-uplift` helpers
+The `vagrant-uplift` plugin provides several entry points which can be used in the Vagrant configuration files. Helper methods are exposed via Ruby class `VagrantPlugins::Uplift::Config()` and organized  into two subsets receiving `box name` and `vagrant box config` parameters:
+
+```ruby
+# create uplift configuration helper
+uplift = VagrantPlugins::Uplift::Config()
+
+# use 'set-xx' helper to configure Vagrant vm_config object
+uplift.set_default_synced_folder("dc", vm_config)
+uplift.set_2Gb("dc", vm_config)
+
+uplift.set_hostname("dc", vm_config, "dc")
+
+uplift.set_private_dc_network("dc", vm_config)
+uplift.set_client_network("sql", vm_config, "sql")
+
+# use 'provision-xx' helpers to use pre-configured Vagrant provisioners
+uplift.provision_win16_dsc_soe("dc", vm_config)
+uplift.provision_dc16("dc", vm_config)
+
+uplift.provision_dc_join("client", vm_config)
+
+uplift.provision_sql16_complete_image("client", vm_config)
+
+uplift.provision_sp16_pre_setup("sp16", vm_config)
+uplift.provision_sp16_single_server_farm("sp16", vm_config, "sql")
+uplift.provision_sp16_farm_post_setup("sp16", vm_config)
+
+```
+
+For example, here are some configuration which can be used. 
 
 ### Turning a Vagrant box into a domain controller
 ```ruby
@@ -57,12 +90,12 @@ config.vm.define "dc" do | vm_config |
   # .. some usual Vagrant configuration
 
   # uplift base configuration
-  uplift.uplift_1Gb("dc", vm_config)
-  uplift.uplift_win16_dsc_base("dc", vm_config)
+  uplift.set_1Gb("dc", vm_config)
+  uplift.provision_win16_dsc_soe("dc", vm_config)
 
   # uplift configuration to create domain controller
-  uplift.uplift_private_dc_network("dc", vm_config)
-  uplift.uplift_dc16("dc", vm_config)
+  uplift.set_private_dc_network("dc", vm_config)
+  uplift.provision_dc16("dc", vm_config)
 
 end
 ```
@@ -72,12 +105,12 @@ end
 config.vm.define "client" do | vm_config | 
 
   # uplift base configuration
-  uplift.uplift_4Gb("client", vm_config)
-  uplift.uplift_win16_dsc_base("client", vm_config)
+  uplift.set_4Gb("client", vm_config)
+  uplift.provision_win16_dsc_soe("client", vm_config)
 
   # uplift config to join box to the domain controller
-  uplift.uplift_client_network("client", vm_config, "client")
-  uplift.uplift_dc_join("client", vm_config)
+  uplift.set_client_network("client", vm_config, "client")
+  uplift.provision_dc_join("client", vm_config)
 
 ```
 
@@ -86,16 +119,16 @@ config.vm.define "client" do | vm_config |
 config.vm.define "sql" do | vm_config | 
 
   # uplift base configuration
-  uplift.uplift_4Gb("sql", vm_config)
-  uplift.uplift_win16_dsc_base("sql", vm_config)
+  uplift.set_4Gb("sql", vm_config)
+  uplift.provision_win16_dsc_soe("sql", vm_config)
 
   # uplift config to join box to the domain controller
-  uplift.uplift_client_network("sql", vm_config, "sql")
-  uplift.uplift_dc_join("sql", vm_config)
+  uplift.set_client_network("sql", vm_config, "sql")
+  uplift.provision_dc_join("sql", vm_config)
   
 
   # uplift config to complete SQL image
-  uplift.uplift_sql("sql", vm_config)
+  uplift.provision_sql16_complete_image("sql", vm_config)
 
 end
 ```
@@ -105,18 +138,18 @@ end
 config.vm.define "spdev" do | vm_config | 
 
   # uplift base configuration
-  uplift.uplift_6Gb("spdev", vm_config)
-  uplift.uplift_win16_dsc_base("spdev", vm_config)
+  uplift.set_6Gb("spdev", vm_config)
+  uplift.provision_win16_dsc_soe("spdev", vm_config)
 
   # uplift config to join box to the domain controller
-  uplift.uplift_client_network("spdev", vm_config, "spdev")
-  uplift.uplift_dc_join("spdev", vm_config)
+  uplift.set_client_network("spdev", vm_config, "spdev")
+  uplift.provision_dc_join("spdev", vm_config)
   
 
   # uplift config to complete SQL image
-  uplift.uplift_sp16_pre_setup("spdev", vm_config)
-  uplift.uplift_sp16_farm_only("spdev", vm_config, "sql")
-  uplift.uplift_sp16_farm_post_setup("spdev", vm_config)
+  uplift.provision_sp16_pre_setup("spdev", vm_config)
+  uplift.provision_sp16_single_server_farm("spdev", vm_config, "sql")
+  uplift.provision_sp16_farm_post_setup("spdev", vm_config)
 
 end
 ```
@@ -133,10 +166,139 @@ uplift = VagrantPlugins::Uplift::Config()
 config.vm.define "spdev" do | vm_config | 
 
   if !uplift.has_checkpoint?(vm_name_spdev, 'sp-farm-post-setup') 
-      uplift.uplift_sp16_farm_post_setup(vm_name_spdev, vm_config)
+      uplift.provision_sp16_farm_post_setup(vm_name_spdev, vm_config)
       vm_config.vm.provision :uplift_checkpoint, name: 'sp-farm-post-setup'
   end
 
+```
+
+It can be used with general Vagrant configuration as well. Once done, your provision logic will be run only once. `:uplift_checkpoint` provisioner saves the state and further vagrant operations won't be configured due to `uplift.has_checkpoint?` check.
+
+```ruby
+uplift = VagrantPlugins::Uplift::Config()
+
+config.vm.define "client" do | vm_config | 
+
+  if !uplift.has_checkpoint?("client", 'custom-provision') 
+      vm_config.vm.provision "shell", path: 'scripts/my-custom-provision.ps1',
+      vm_config.vm.provision :uplift_checkpoint, name: 'custom-provision'
+  end
+
+```
+
+## `vagrant-uplift` helper methods
+Prior helper usage, the configuration object needs to be created:
+```ruby
+uplift = VagrantPlugins::Uplift::Config()
+```
+
+All methods receive `box name` and `vagrant box config` parameters.
+
+### `uplift.set_xxx()` methods
+
+```ruby
+# configures vagrant vm with giving RAM and CPUs
+uplift.set_05Gb(vm_name, vm_config)
+uplift.set_1Gb(vm_name, vm_config)
+uplift.set_2Gb(vm_name, vm_config)
+uplift.set_4Gb(vm_name, vm_config)
+uplift.set_6Gb(vm_name, vm_config)
+uplift.set_8Gb(vm_name, vm_config)
+uplift.set_12Gb(vm_name, vm_config)
+uplift.set_16Gb(vm_name, vm_config)
+
+uplift.set_cpu_and_ram(vm_name, vm_config,  cpu, ram) 
+
+# configures default winrm settings (:plaintext with vagrant:vagrant)
+uplift.set_winrm(vm_name, vm_config) 
+
+# disables default synced_folder for vagrant box
+uplift.set_default_synced_folder(vm_name, vm_config) 
+
+# configures hostname for the vagrant box
+uplift.set_hostname(vm_name, vm_config) 
+
+# configures private network for the vagrant box
+# use for VMs to be promoted to domain controller
+uplift.set_private_dc_network(vm_name, vm_config) 
+
+# configures private network for the vagrant box
+# use for VMs to be joined to domain controller.
+uplift.set_client_network(vm_name, vm_config) 
+
+# provisions shortcuts to common tools: 
+# IE, PowerShell ISE, PS6, Server Manager, VS, SharePoint, SQL and others
+uplift.provision_win16_dsc_shortcuts(vm_name, vm_config) 
+```
+
+### `uplift.provision_xxx()` - general 
+
+```ruby
+# provisions box with standard DSC config 
+uplift.provision_win16_dsc_soe(vm_name, vm_config) 
+
+# provisions box with standard shortcuts
+uplift.provision_win16_dsc_shortcuts(vm_name, vm_config) 
+
+# provisions domain controller, minimal config
+uplift.provision_dc16(vm_name, vm_config) 
+
+# provisions domain join for the giving box
+uplift.provision_dc_join(vm_name, vm_config) 
+```
+
+### `uplift.provision_xxx()` - SQL specific 
+
+```ruby
+# completes SQL Server image
+uplift.provision_sql16_complete_image(vm_name, vm_config) 
+
+# optimizes SQL Server instance
+# sets min/max memory and other tweaks
+provision_sql16_optimize(vm_name, vm_config, min_memory: 1024, max_memory: 4096, instance_name: 'MSSQLSERVER' ) 
+```
+
+### `uplift.provision_xxx()` - SharePoint specific 
+
+```ruby
+
+# installs required packages for for SharePoint 2016 setup. 
+# normally, should be already done under packer image, this is more of a shortcut for non-uplift boxes      
+uplift.provision_sp16_image_packages_setup(vm_name, vm_config) 
+
+# prepares box for SharePoint 2016 setup. 
+# ensures CredSSP configs and other box-wide changes
+# normally, should be already done under packer image, this is more of a shortcut for non-uplift boxes
+uplift.provision_sp16_image_setup(vm_name, vm_config) 
+
+# prepares box for SharePoint 2016 setup
+# fixes IIS after sysprep, ensures that needed services are up
+uplift.provision_sp16_pre_setup(vm_name, vm_config) 
+
+# prepares SharePoint 2016 setup accounts
+# https://absolute-sharepoint.com/2017/03/sharepoint-2016-service-accounts-recommendations.html
+uplift.provision_sp16_sp_accounts(vm_name, vm_config) 
+
+# Prepares SharePoint 2016 accounts required for SQL
+uplift.provision_sp16_sql_accounts(vm_name, vm_config) 
+
+# provisions SharePoint 2016 SingleServerFarm using SharePoint DSC
+# does nothing but ne farm creation
+uplift.provision_sp16_single_server_farm(vm_name, vm_config, sql_server, farm_prefix = nil, dsc_verbose: '1')
+
+# provisions SharePoint 2016 minimal services 
+# taxonomy, secure store, state service, search, user profile and others
+# this is a default, opinionated config
+# ! you are encouraged to use your own vagrant provision and DSC !
+uplift.provision_sp16_minimal_services(vm_name, vm_config, sql_server, farm_prefix = nil, dsc_verbose: '1')
+
+# provisions SharePoint 2016 post-setup, ensures all services work
+uplift.provision_sp16_farm_post_setup(vm_name, vm_config) 
+
+# provisions SharePoint 2016 web application with default settings
+# this is a default, opinionated config
+# ! you are encouraged to use your own vagrant provision and DSC !
+uplift.provision_sp16_web_application(vm_name, vm_config) 
 ```
 
 ## Local development workflow

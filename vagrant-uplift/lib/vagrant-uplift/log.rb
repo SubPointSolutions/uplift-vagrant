@@ -62,6 +62,8 @@ module VagrantPlugins::Uplift
         end
 
         def _format_message(severity, datetime, progname, message)
+            
+            result = ''
             color_code = _get_message_color_code(severity: severity, message: message)
             
             if severity == "DEBUG"
@@ -70,14 +72,23 @@ module VagrantPlugins::Uplift
             
             case ENV['UPLF_LOG_FORMAT'].to_s.upcase
             when 'SHORT'
-                "\e[#{color_code}m#{_logger_name}: #{message}\e[0m\n"
+                result = "#{_logger_name}: #{message}"
             when 'TIME'
-                "\e[#{color_code}m#{_logger_name}: #{datetime} #{message}\e[0m\n"
+                result = "#{_logger_name}: #{datetime} #{message}"
             when 'FULL'
-                "\e[#{color_code}m#{_logger_name}: #{datetime} #{severity} #{message}\e[0m\n"
+                result = "#{_logger_name}: #{datetime} #{severity} #{message}"
             else 
-                "\e[#{color_code}m#{_logger_name}: #{message}\e[0m\n"
+                result = "#{_logger_name}: #{message}"
             end
+
+            # add/remove colors, useful for CI based output
+            if ENV['UPLF_LOG_NO_COLOR'].to_s.empty? 
+                result = "\e[#{color_code}m#{result}\e[0m\n"
+            else 
+                result = "#{result}\n"
+            end
+
+            return result
         end
 
         def _get_message_color_code(severity:, message:)

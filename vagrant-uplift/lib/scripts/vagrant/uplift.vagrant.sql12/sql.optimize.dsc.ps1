@@ -8,8 +8,9 @@ Write-UpliftEnv
 
 Configuration Optimize_SQL
 {
-    Import-DscResource -ModuleName 'xSQLServer'
     Import-DscResource -ModuleName 'PSDesiredStateConfiguration'
+
+    Import-DscResource -ModuleName 'SqlServerDsc' -ModuleVersion "12.2.0.0" 
 
     Node localhost {
 
@@ -36,7 +37,7 @@ $config = @{
             RetryIntervalSec = 30
 
             ServerName    = Get-UpliftEnvVariable "UPLF_SQL_SERVER_NAME" "" (hostname)
-            InstanceName  = Get-UpliftEnvVariable "UPLF_SQL_INSTNCE_NAME" "" "MSSQL"
+            InstanceName  = Get-UpliftEnvVariable "UPLF_SQL_INSTANCE_NAME" "" "MSSQLSERVER"
 
             MinMemory    = Get-UpliftEnvVariable "UPLF_SQL_MIN_MEMORY" "" 1024
             MaxMemory    = Get-UpliftEnvVariable "UPLF_SQL_MAX_MEMORY" "" 4096

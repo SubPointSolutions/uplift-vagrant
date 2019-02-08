@@ -37,20 +37,19 @@ Vagrant.configure("2") do |config|
     vm_config.vm.box = box_name_dc16
     vm_config.vm.box_check_update = false
 
-    uplift.uplift_hostname(vm_config, "dc")
+    uplift.set_hostname(vm_config, "dc")
 
-    uplift.uplift_winrm(vm_config)
-    uplift.uplift_synced_folder(vm_config)
+    uplift.set_winrm(vm_config)
+    uplift.set_default_synced_folder(vm_config)
 
-    uplift.uplift_1Gb(vm_config)
+    uplift.set_1Gb(vm_config)
 
-    uplift.uplift_win16_dsc_base(vm_config)
-    uplift.uplift_dc16(vm_config)
+    uplift.provision_win16_dsc_soe(vm_config)
+    uplift.provision_dc16(vm_config)
     
     vm_config.vm.provider "virtualbox" do |v|
       v.gui  = false
       
-      #v.name = "uplift-cd-d16-r"
       v.cpus   = 4
       v.memory = 1 * 1024
 
@@ -64,16 +63,15 @@ Vagrant.configure("2") do |config|
     vm_config.vm.box = box_name_bare16
     vm_config.vm.box_check_update = false
 
-    uplift.uplift_hostname(vm_config, "bare")
+    uplift.set_hostname(vm_config, "bare")
 
-    #uplift.uplift_winrm(vm_config)
-    uplift.uplift_synced_folder(vm_config)
-    uplift.uplift_1Gb(vm_config)
+    #uplift.set_winrm(vm_config)
+    uplift.set_default_synced_folder(vm_config)
+    uplift.set_1Gb(vm_config)
 
     vm_config.vm.provider "virtualbox" do |v|
       v.gui  = false
       
-      #v.name = "uplift-cd-d16-r"
       v.cpus   = 4
       v.memory = 1 * 1024
 
@@ -87,21 +85,20 @@ Vagrant.configure("2") do |config|
     vm_config.vm.box = box_name_vs17
     vm_config.vm.box_check_update = false
 
-    uplift.uplift_hostname(vm_config, "vs17")
+    uplift.set_hostname(vm_config, "vs17")
 
-    uplift.uplift_winrm(vm_config)
-    uplift.uplift_synced_folder(vm_config)
+    uplift.set_winrm(vm_config)
+    uplift.set_default_synced_folder(vm_config)
 
-    uplift.uplift_4Gb(vm_config)
-    uplift.uplift_client_network(vm_config, "vs17")
+    uplift.set_4Gb(vm_config)
+    uplift.set_client_network(vm_config, "vs17")
 
-    uplift.uplift_win16_dsc_base(vm_config)
-    uplift.uplift_dc_join(vm_config)
+    uplift.provision_win16_dsc_soe(vm_config)
+    uplift.provision_dc_join(vm_config)
     
     vm_config.vm.provider "virtualbox" do |v|
       v.gui  = false
       
-      #v.name = "uplift-cd-d16-r"
       v.cpus   = 4
       v.memory = 4 * 1024
 
@@ -115,21 +112,20 @@ Vagrant.configure("2") do |config|
     vm_config.vm.box = box_name_dc16
     vm_config.vm.box_check_update = false
 
-    uplift.uplift_hostname(vm_config, "dc")
+    uplift.set_hostname(vm_config, "dc")
 
-    uplift.uplift_winrm(vm_config)
-    uplift.uplift_synced_folder(vm_config)
+    uplift.set_winrm(vm_config)
+    uplift.set_default_synced_folder(vm_config)
 
-    uplift.uplift_4Gb(vm_config)
-    uplift.uplift_client_network(vm_config, "app16")
+    uplift.set_4Gb(vm_config)
+    uplift.set_client_network(vm_config, "app16")
 
-    uplift.uplift_win16_dsc_base(vm_config)
-    uplift.uplift_dc_join(vm_config)
+    uplift.provision_win16_dsc_soe(vm_config)
+    uplift.provision_dc_join(vm_config)
     
     vm_config.vm.provider "virtualbox" do |v|
       v.gui  = false
       
-      #v.name = "uplift-cd-d16-r"
       v.cpus   = 4
       v.memory = 1 * 1024
 
@@ -143,18 +139,18 @@ Vagrant.configure("2") do |config|
     vm_config.vm.box = box_name_sql16
     vm_config.vm.box_check_update = false
 
-    uplift.uplift_hostname(vm_config, "sql16")
+    uplift.set_hostname(vm_config, "sql16")
 
-    uplift.uplift_winrm(vm_config)
-    uplift.uplift_synced_folder(vm_config)
+    uplift.set_winrm(vm_config)
+    uplift.set_default_synced_folder(vm_config)
 
-    uplift.uplift_4Gb(vm_config)
-    uplift.uplift_client_network(vm_config, "sql16")
+    uplift.set_4Gb(vm_config)
+    uplift.set_client_network(vm_config, "sql16")
 
-    uplift.uplift_win16_dsc_base(vm_config)
-    uplift.uplift_dc_join(vm_config)
+    uplift.provision_win16_dsc_soe(vm_config)
+    uplift.provision_dc_join(vm_config)
 
-    uplift.uplift_sql(
+    uplift.provision_sql16_complete_image(
       vm_config,
       resource_name: ''
     )
@@ -162,7 +158,6 @@ Vagrant.configure("2") do |config|
     vm_config.vm.provider "virtualbox" do |v|
       v.gui  = false
       
-      #v.name = "uplift-cd-d16-r"
       v.cpus   = 4
       v.memory = 4 * 1024
 
@@ -175,22 +170,21 @@ Vagrant.configure("2") do |config|
     vm_config.vm.box = box_name_sp16_rtm
     vm_config.vm.box_check_update = false
 
-    uplift.uplift_hostname(vm_config, "sp16-rtm")
+    uplift.set_hostname(vm_config, "sp16-rtm")
 
-    uplift.uplift_winrm(vm_config)
-    uplift.uplift_synced_folder(vm_config)
+    uplift.set_winrm(vm_config)
+    uplift.set_default_synced_folder(vm_config)
 
-    uplift.uplift_4Gb(vm_config)
-    uplift.uplift_client_network(vm_config, "sp16-rtm")
+    uplift.set_4Gb(vm_config)
+    uplift.set_client_network(vm_config, "sp16-rtm")
 
-    uplift.uplift_win16_dsc_base(vm_config)
-    uplift.uplift_dc_join(vm_config)
+    uplift.provision_win16_dsc_soe(vm_config)
+    uplift.provision_dc_join(vm_config)
 
     uplift.uplift_sp16(vm_config, "sql16", "sp16rtm")
     
     vm_config.vm.provider "virtualbox" do |v|
       v.gui  = false
-      v.name = "vagrant-uplift-cd-sp16-rtm"
     end
 
   end  
@@ -199,22 +193,21 @@ Vagrant.configure("2") do |config|
     vm_config.vm.box = box_name_sp16_fp2
     vm_config.vm.box_check_update = false
 
-    uplift.uplift_hostname(vm_config, "sp16-rtm")
+    uplift.set_hostname(vm_config, "sp16-rtm")
 
-    uplift.uplift_winrm(vm_config)
-    uplift.uplift_synced_folder(vm_config)
+    uplift.set_winrm(vm_config)
+    uplift.set_default_synced_folder(vm_config)
 
-    uplift.uplift_4Gb(vm_config)
-    uplift.uplift_client_network(vm_config, "sp16-rtm")
+    uplift.set_4Gb(vm_config)
+    uplift.set_client_network(vm_config, "sp16-rtm")
 
-    uplift.uplift_win16_dsc_base(vm_config)
-    uplift.uplift_dc_join(vm_config)
+    uplift.provision_win16_dsc_soe(vm_config)
+    uplift.provision_dc_join(vm_config)
 
     uplift.uplift_sp16(vm_config, "sql16", "sp16rtm")
     
     vm_config.vm.provider "virtualbox" do |v|
       v.gui  = false
-      v.name = "vagrant-uplift-cd-sp16-rtm"
     end
 
   end  
@@ -223,18 +216,18 @@ Vagrant.configure("2") do |config|
     vm_config.vm.box = box_name_sp16_sql16
     vm_config.vm.box_check_update = false
 
-    uplift.uplift_hostname(vm_config, "sp16dev")
+    uplift.set_hostname(vm_config, "sp16dev")
 
-    uplift.uplift_winrm(vm_config)
-    uplift.uplift_synced_folder(vm_config)
+    uplift.set_winrm(vm_config)
+    uplift.set_default_synced_folder(vm_config)
 
-    uplift.uplift_6Gb(vm_config)
-    uplift.uplift_client_network(vm_config, "sp16dev")
+    uplift.set_6Gb(vm_config)
+    uplift.set_client_network(vm_config, "sp16dev")
 
-    # uplift.uplift_win16_dsc_base(vm_config)
-    # uplift.uplift_dc_join(vm_config)
+    # uplift.provision_win16_dsc_soe(vm_config)
+    # uplift.provision_dc_join(vm_config)
 
-    # uplift.uplift_sql(
+    # uplift.provision_sql16_complete_image(
     #   vm_config, 
     #   resource_name: '',
     #   bin: false, 
@@ -245,7 +238,6 @@ Vagrant.configure("2") do |config|
     
     vm_config.vm.provider "virtualbox" do |v|
       v.gui  = false
-      v.name = "vagrant-uplift-cd-sp16dev"
     end
 
   end  
