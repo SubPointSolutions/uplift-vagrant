@@ -19,6 +19,33 @@ The uplift project is split into several repositories to address particular a pi
 
 The current repository houses Packer templates and automation which is used to produces Vagrant boxes across the uplift project.
 
+## Before you begin
+This vagrant plugin provides a simplified configuration of DC, SQL, SharePoint and VS and designed to be used with uplift packer boxes.
+
+Please be aware that `vagrant-uplift` plugin is designed to work with `uplift-packer` boxes:
+* https://github.com/SubPointSolutions/uplift-packer
+* https://app.vagrantup.com/SubPointSolutions
+
+The plugin provides **opinionated** infrastructure configuration, therefore, it uses and relies on other `powershell` modules to be already on the box. Otherwise, provision would be much longer than it is right now.
+
+While it is encouraged to use [boxes provides by the uplift project](https://app.vagrantup.com/SubPointSolutions), it is still possible to use this plugin with other vagrant boxes.
+
+A minimal set of things needed to be on the box before using `vagrant-uplift`:
+* [Uplift.Core module](https://www.powershellgallery.com/packages/Uplift.Core)
+* [InvokeUplift module](https://www.powershellgallery.com/packages/InvokeUplift)
+* [chocolatey](https://chocolatey.org/)
+* [powershell6 (pwsh)](https://github.com/PowerShell/PowerShell)
+* [git, wget, curl](https://github.com/SubPointSolutions/uplift-packer/blob/master/packer/scripts/uplift.packer/image-soe/_choco_packages.ps1)
+* [various `powershell` modules](https://github.com/SubPointSolutions/uplift-packer/blob/master/packer/scripts/uplift.packer/image-soe/_install-dsc-modules.ps1)
+
+
+There are a few ways of getting these on the box:
+* using [boxes provides by the uplift project](https://app.vagrantup.com/SubPointSolutions)
+* manually installing all the above (using packer, vagrant or your own script)
+* using experimental `uplift.provision_uplift_bootstrap(vm_name, vm_config)` method 
+
+Please refer to `provision_uplift_bootstrap()` documentation for more details below.
+
 ## Installing `vagrant-uplift` plugin
 `vagrant-uplift` is a normal Vagrant plugin distributed via [rubygems.org](https://rubygems.org/gems/vagrant-uplift). Refer to [Vagrant documentation](https://www.vagrantup.com/docs) for additional information.
 
@@ -299,6 +326,29 @@ uplift.provision_sp16_farm_post_setup(vm_name, vm_config)
 # this is a default, opinionated config
 # ! you are encouraged to use your own vagrant provision and DSC !
 uplift.provision_sp16_web_application(vm_name, vm_config) 
+```
+
+## Using `uplift-vagrant` with custom boxes
+
+Originally, `vagrant-uplift` plugin is designed to work with `uplift-packer` boxes:
+* https://github.com/SubPointSolutions/uplift-packer
+* https://app.vagrantup.com/SubPointSolutions
+
+The plugin provides **opinionated** infrastructure configuration, therefore, it uses and relies on other `powershell` modules to be already on the box. Otherwise, provision would be much longer than it is right now. 
+
+While it is encouraged to use [boxes provides by the uplift project](https://app.vagrantup.com/SubPointSolutions), it is still possible to use this plugin with other vagrant boxes. 
+
+`vagrant-uplift` provides a helper `provision_uplift_bootstrap` which provisions all needed packages on the custom box. Depending on the plugin version, the set of the package might be different. It is suggested to use checkpoints to ensure a single run of the initial provision per the box.
+
+```ruby
+  config.vm.define("my-vm") do | vm_config |   
+
+    if !uplift.has_checkpoint?("my-vm", 'uplift-bootstrap') 
+      uplift.provision_uplift_bootstrap("my-vm", vm_config)
+      vm_config.vm.provision :uplift_checkpoint, name: 'uplift-bootstrap'
+    end
+
+  end
 ```
 
 ## Local development workflow
