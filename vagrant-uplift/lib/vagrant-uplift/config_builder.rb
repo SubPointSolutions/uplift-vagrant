@@ -476,6 +476,12 @@ module VagrantPlugins
 
         vm_config.winrm.username = "vagrant"
         vm_config.winrm.password = "vagrant"
+
+        # HTTPClient::KeepAliveDisconnected: An existing connection was forcibly closed by the remote host #6430
+        # https://github.com/hashicorp/vagrant/issues/6430
+        # https://github.com/hashicorp/vagrant/issues/8323
+        vm_config.winrm.retry_limit = 30
+        vm_config.winrm.retry_delay = 10
       end
 
       # Disables default synced_folder for vagrant box
@@ -1133,6 +1139,47 @@ module VagrantPlugins
         _track_ai_event(__method__, {
           'vm_name': vm_name
         })
+      end
+
+      # Provisions box with the minimal oconfiguration to enable uplift
+      # That allows uplift usage on custom vagrant boxes
+      # - installs uplift.core ps module
+      # - installs various dsc modules
+      #
+      # @param vm_name [String] vagrant vm name
+      # @param vm_config [Vagrant::Config::V2::Root] vagrant vm config
+      def provision_uplift_bootstrap(vm_name, vm_config) 
+
+        require_string(vm_name)
+        require_vagrant_config(vm_config)
+
+        log_info_light("#{vm_name}: Uplift bootstrap")
+
+        vm_config.vm.provision "shell",
+            name: 'uplift.bootstrap',
+            path: "#{vagrant_script_path}/vagrant/uplift.vagrant.bootstrap/uplift.bootstrap.ps1"
+
+        vm_config.vm.provision "shell",
+            name: 'uplift.choco',
+            path: "#{vagrant_script_path}/vagrant/uplift.vagrant.bootstrap/uplift.bootstrap.choco.ps1"
+
+        vm_config.vm.provision "shell",
+            name: 'uplift.choco-packages',
+            path: "#{vagrant_script_path}/vagrant/uplift.vagrant.bootstrap/uplift.bootstrap.choco-packages.ps1"            
+
+        vm_config.vm.provision "shell",
+            name: 'uplift.dsc.bootstrap',
+            path: "#{vagrant_script_path}/vagrant/uplift.vagrant.bootstrap/uplift.bootstrap.ps-modules.ps1"            
+               
+        vm_config.vm.provision "shell",
+            name: 'uplift.resource-modul',
+            path: "#{vagrant_script_path}/vagrant/uplift.vagrant.bootstrap/uplift.resource.bootstrap.ps1"                        
+            
+
+        _track_ai_event(__method__, {
+          'vm_name': vm_name
+        })
+
       end
 
       private
