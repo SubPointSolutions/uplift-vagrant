@@ -17,7 +17,7 @@ module VagrantPlugins
       @@ai_client    = nil
       @@ai_config_id = nil
 
-      @@plugin_version = 'v0.1.20190207.235938'
+      @@plugin_version = '0.1.0'
 
       @@supported_version = nil
 
@@ -35,7 +35,7 @@ module VagrantPlugins
         # WARNING: Vagrant has detected the `vagrant-winrm` plugin.
         ENV['VAGRANT_IGNORE_WINRM_PLUGIN'] = '1'
 
-        log_info_light "vagrant-uplift #{@@plugin_version}"
+        log_info_light "vagrant-uplift v#{@@plugin_version}"
 
         _track_ai_event('initialize')
 
