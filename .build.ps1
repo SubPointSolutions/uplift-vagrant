@@ -133,7 +133,11 @@ task PublishGem {
     if($null -ne $env:APPVEYOR_REPO_BRANCH) {
         Write-Build Green " [~] Running under APPVEYOR branch: $($env:APPVEYOR_REPO_BRANCH)"
 
-        if($env:APPVEYOR_REPO_BRANCH -ine "beta" -and $env:APPVEYOR_REPO_BRANCH -ine "master") {
+        # if($env:APPVEYOR_REPO_BRANCH -ine "beta" -and $env:APPVEYOR_REPO_BRANCH -ine "master") {
+
+        # publishing to https://rubygems.org/gems/vagrant-uplift on master branch only
+        # non-master branch artefacts can be downloaded from appveyor/builds/artifacts tab
+        if($env:APPVEYOR_REPO_BRANCH -ine "master") {
             Write-Build Green " skipping publishing for branch: $($env:APPVEYOR_REPO_BRANCH)"
             return;
         }
