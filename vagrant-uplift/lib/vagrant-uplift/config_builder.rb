@@ -564,7 +564,7 @@ module VagrantPlugins
 
         require_string(hostname)
 
-        log_info_light("#{vm_name}: setitng hostname: #{hostname}")
+        log_info_light("#{vm_name}: setting hostname: #{hostname}")
         vm_config.vm.hostname = hostname
       end
 
@@ -582,6 +582,26 @@ module VagrantPlugins
         log_info(" - ip: #{ip}, gateway: #{gateway}")
 
         vm_config.vm.network :private_network, ip: ip, gateway: gateway
+      end
+
+      # Configures public network for the vagrant box.
+      #
+      # @param vm_name [String] vagrant vm name
+      # @param vm_config [Vagrant::Config::V2::Root] vagrant vm config
+      # @param ip [String] ip value
+      def set_public_network(vm_name, vm_config, ip) 
+        
+        require_string(vm_name)
+        require_vagrant_config(vm_config)
+
+        if ip.to_s.empty?
+          log_info("  - skipping public network ip setup") 
+          return
+        else 
+          log_info("  - public network: ip: #{ip}") 
+        end
+
+        vm_config.vm.network :public_network, ip: ip
       end
 
       # Configures client network for the vagrant box. Use for VMs to be joined to domain controller.
