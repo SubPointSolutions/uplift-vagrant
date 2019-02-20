@@ -1,4 +1,4 @@
-# fail on errors and include uplift helpers
+﻿# fail on errors and include uplift helpers
 $ErrorActionPreference = "Stop"
 
 Import-Module Uplift.Core
@@ -23,9 +23,9 @@ Set-UpliftDCPromoSettings $domainAdminPassword
 Configuration Install_DomainController {
 
     Import-DscResource -ModuleName 'PSDesiredStateConfiguration'
-    Import-DscResource -ModuleName 'xActiveDirectory'
-    Import-DscResource -ModuleName 'xNetworking'
-    
+    Import-DscResource -ModuleName 'xActiveDirectory' -ModuleVersion "2.17.0.0"
+    Import-DscResource -ModuleName 'xNetworking' -ModuleVersion "5.5.0.0"
+
     Node localhost
     {
         $domainName           = $Node.DomainName
@@ -34,7 +34,7 @@ Configuration Install_DomainController {
 
         $securePassword   = ConvertTo-SecureString $domainAdminPassword -AsPlainText -Force
         $domainAdminCreds = New-Object System.Management.Automation.PSCredential(
-            $domainAdminName, 
+            $domainAdminName,
             $securePassword
         )
 
@@ -86,18 +86,18 @@ Configuration Install_DomainController {
             # Windows 2016 fix
             # http://vcloud-lab.com/entries/active-directory/powershell-dsc-xactivedirectory-error-a-netbios-domain-name-must-be-specified-
             DomainNetBIOSName = $domainName.Split('.')[0]
-            
+
             DomainAdministratorCredential = $domainAdminCreds
             SafemodeAdministratorPassword = $safeModeAdminCreds
-            
+
             DatabasePath = "C:\NTDS"
             LogPath      = "C:\NTDS"
             SysvolPath   = "C:\SYSVOL"
-            
+
             DependsOn = @(
-                "[WindowsFeature]ADDSInstall", 
-                "[WindowsFeature]RSAT", 
-                "[WindowsFeature]ADDSRSAT", 
+                "[WindowsFeature]ADDSInstall",
+                "[WindowsFeature]RSAT",
+                "[WindowsFeature]ADDSRSAT",
                 "[xDnsServerAddress]DnsServerAddress"
             )
         }
@@ -111,8 +111,8 @@ $config = @{
 
             PSDscAllowDomainUser        = $true
             PSDscAllowPlainTextPassword = $true
-            
-            RetryCount       = 10           
+
+            RetryCount       = 10
             RetryIntervalSec = 30
 
             DomainName           = $domainName
@@ -123,6 +123,6 @@ $config = @{
 }
 
 $configuration = Get-Command Install_DomainController
-Start-UpliftDSCConfiguration $configuration $config 
+Start-UpliftDSCConfiguration $configuration $config
 
 exit 0

@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["SubPointSupport"]
   spec.email         = ["support@subpointsolutions.com"]
 
-  spec.summary       = 'Simplifies windows infrastructure management for your Vagrant VM'
-  spec.description   = 'Use vagrant-uplift to heavylift common windows installation rounties for DC, SQL, and SharePoint Vagrant VM'
+  spec.summary       = 'Simplified Windows infrastructure management for SharePoint professionals.'
+  spec.description   = 'Simplified Windows infrastructure management for SharePoint professionals. Easier setup of domain controllers, SQL, and SharePoint boxes.'
   spec.homepage      = "http://subpointsolutions.com/uplift"
   spec.license       = "MIT"
 
@@ -25,18 +25,18 @@ Gem::Specification.new do |spec|
   # end
 
   # Specify which files should be added to the gem when it is released.
-  spec.files         = Dir['bin/*'] 
-  spec.files        += Dir['lib/**/*.rb']
-  spec.files        += Dir['lib/**/*.ps1']
-  spec.files        += Dir['lib/.md']
+  spec.files = Dir['bin/*'] 
+  spec.files += Dir['lib/**/*.rb']
+  spec.files += Dir['lib/**/*.ps1']
+  spec.files += Dir['lib/.md']
 
   #spec.bindir        = "exe"
   #spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "bundler"
-  spec.add_development_dependency "rake"
-  spec.add_development_dependency "rspec"
+  spec.add_development_dependency "bundler", '~> 0'
+  spec.add_development_dependency "rake", '~> 0'
+  spec.add_development_dependency "rspec", '~> 0'
 
 end

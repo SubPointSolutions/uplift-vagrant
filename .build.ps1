@@ -6,7 +6,6 @@
 )
 
 $dirPath = $BuildRoot
-# $scriptPath = $MyInvocation.MyCommand.Name
 
 $gemFolder = "vagrant-uplift"
 
@@ -36,8 +35,8 @@ task PrepareGem {
 }
 
 task VersionGem {
-    $dateStamp = Get-Date -f "yyyyMMdd"
-    $timeStamp = Get-Date -f "HHmmss"
+    $dateStamp = [System.DateTime]::UtcNow.ToString("yyyyMMdd")
+    $timeStamp = [System.DateTime]::UtcNow.ToString("HHmmss")
 
     $stamp = "$dateStamp.$timeStamp"
 
@@ -48,20 +47,38 @@ task VersionGem {
 
     $script:Version = "0.1.$stamp"
 
+    if($null -ne $env:APPVEYOR_REPO_BRANCH) {
+        Write-Build Green " [~] Running under APPVEYOR branch: $($env:APPVEYOR_REPO_BRANCH)"
+
+        if($env:APPVEYOR_REPO_BRANCH -ine "beta" -and $env:APPVEYOR_REPO_BRANCH -ine "master") {
+            Write-Build Green " skipping APPVEYOR versioning for branch: $($env:APPVEYOR_REPO_BRANCH)"
+        } else {
+            Write-Build Green " using APPVEYOR versioning for branch: $($env:APPVEYOR_REPO_BRANCH)"
+
+            ## 1902.build-no
+            $stamp = [System.DateTime]::UtcNow.ToString("yyMM")
+            $buildNumber = $env:APPVEYOR_BUILD_NUMBER;
+
+            $script:Version = "0.2.$stamp.$buildNumber"
+        }
+    } 
+
     if ($null -ne $buildVersion ) {
-        Write-Build Yello " [+] Using version from params: $buildVersion"
+        Write-Build Yellow " [+] Using version from params: $buildVersion"
         $script:Version = $buildVersion
     }
 
-    $specFile = "$buildFolder/lib/vagrant-uplift/version.rb"
-    $gemFile = "$buildFolder/vagrant-uplift.gemspec"
+    $versionedFiles = @( 
+        "$buildFolder/lib/vagrant-uplift/version.rb",
+        "$buildFolder/vagrant-uplift.gemspec",
+        "$buildFolder/lib/vagrant-uplift/config_builder.rb"
+    )
 
     Write-Build Green " [~] Patching version: $($script:Version)"
-
-    Write-Build Green " - file: $specFile"
-
-    Edit-ValueInFile $specFile '0.1.0' $script:Version
-    Edit-ValueInFile $gemFile  '0.1.0' $script:Version
+    foreach($versionedFile in $versionedFiles) {
+        Write-Build Green " - file: $versionedFile"
+        Edit-ValueInFile $versionedFile '0.1.0' $script:Version
+    }
 }
 
 task BuildGem {
@@ -113,7 +130,29 @@ task PublishGem {
 
     Write-Build Green "Publishing gems..."
 
+    if($null -ne $env:APPVEYOR_REPO_BRANCH) {
+        Write-Build Green " [~] Running under APPVEYOR branch: $($env:APPVEYOR_REPO_BRANCH)"
+
+        # if($env:APPVEYOR_REPO_BRANCH -ine "beta" -and $env:APPVEYOR_REPO_BRANCH -ine "master") {
+
+        # publishing to https://rubygems.org/gems/vagrant-uplift on master branch only
+        # non-master branch artefacts can be downloaded from appveyor/builds/artifacts tab
+        if($env:APPVEYOR_REPO_BRANCH -ine "master") {
+            Write-Build Green " skipping publishing for branch: $($env:APPVEYOR_REPO_BRANCH)"
+            return;
+        }
+
+        $apiKeyFile = "~/.gem/credentials"
+
+        $apiKeyEnvName = ("SPS_RUBYGEMS_API_KEY_" + $env:APPVEYOR_REPO_BRANCH)
+        $apiKeyValue   = (get-item env:$apiKeyEnvName).Value;
+
+        "---" >  $apiKeyFile
+        ":rubygems_api_key: $apiKeyValue" >>  $apiKeyFile
+    }
+
     exec {
+        Write-Build Green "gem push latest.gem"
         Set-Location "$buildOutput"
         pwsh -c "gem push latest.gem"
     }
@@ -155,7 +194,6 @@ task AnalyzeModule {
                     Write-Build Green " - file   : $filePath"
                     Write-Build Green " - QA_FIX : $QA_FIX"
 
-
                     continue;
                 }
               
@@ -178,12 +216,26 @@ task AnalyzeModule {
     }
 }
 
+# Synopsis: Executes Appveyor specific setup
+task AppveyorPrepare {
+    Write-Build Green "ruby -v"
+    ruby -v
+
+    Write-Build Green "gem -v"
+    gem -v
+
+    Write-Build Green "bundle -v"
+    bundle  -v
+}
+
 task QA AnalyzeModule
 
-task DefaultBuild PrepareGem,
+task DefaultBuildGem PrepareGem,
     VersionGem,
     BuildGem,
-    CopyGem,
+    CopyGem
+
+task DefaultBuild DefaultBuildGem,
     ShowVagrantPlugins,
     InstallGem,
     ShowVagrantPlugins
@@ -191,3 +243,7 @@ task DefaultBuild PrepareGem,
 task . DefaultBuild
 
 task Release QA, DefaultBuild, PublishGem
+
+task Appveyor AppveyorPrepare,
+    DefaultBuildGem,
+    PublishGem
