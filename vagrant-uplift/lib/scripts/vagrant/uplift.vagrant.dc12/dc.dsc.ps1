@@ -53,13 +53,13 @@ Configuration Install_DomainController {
             Name   = "DNS"
         }
 
-        xDnsServerAddress DnsServerAddress
-        {
-            Address        = '127.0.0.1'
-            InterfaceAlias = 'Ethernet'
-            AddressFamily  = 'IPv4'
-            DependsOn      = "[WindowsFeature]DNS"
-        }
+        # xDnsServerAddress DnsServerAddress
+        # {
+        #     Address        = '127.0.0.1'
+        #     InterfaceAlias = 'Ethernet'
+        #     AddressFamily  = 'IPv4'
+        #     DependsOn      = "[WindowsFeature]DNS"
+        # }
 
         WindowsFeature ADDSInstall
         {
@@ -97,8 +97,8 @@ Configuration Install_DomainController {
             DependsOn = @(
                 "[WindowsFeature]ADDSInstall",
                 "[WindowsFeature]RSAT",
-                "[WindowsFeature]ADDSRSAT",
-                "[xDnsServerAddress]DnsServerAddress"
+                "[WindowsFeature]ADDSRSAT"
+                #"[xDnsServerAddress]DnsServerAddress"
             )
         }
     }
