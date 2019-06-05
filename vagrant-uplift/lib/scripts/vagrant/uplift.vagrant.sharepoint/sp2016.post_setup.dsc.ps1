@@ -110,8 +110,17 @@ $config = @{
 # applying updates if any
 $cmd_text = 'psconfig.exe -cmd upgrade -inplace b2b -force -cmd applicationcontent -install -cmd installfeatures'
 
+$targetDir = "C:\Program Files\Common Files\microsoft shared\Web Server Extensions\15\bin"
+
+if( (Test-Path $targetDir) -eq $False) {
+    $targetDir = "C:\Program Files\Common Files\microsoft shared\Web Server Extensions\16\bin"
+}
+
+Write-UpliftMessage "Target dir: $targetDir"
 Write-UpliftMessage "Running updates: $cmd_text"
-cd "C:\Program Files\Common Files\Microsoft Shared\Web Server Extensions\16\BIN"
+
+cd $targetDir
+
 ./psconfig.exe -cmd upgrade -inplace b2b -force -cmd applicationcontent -install -cmd installfeatures
 Confirm-UpliftExitCode $LASTEXITCODE "Cannot execute farm updates: $cmd_text"
 

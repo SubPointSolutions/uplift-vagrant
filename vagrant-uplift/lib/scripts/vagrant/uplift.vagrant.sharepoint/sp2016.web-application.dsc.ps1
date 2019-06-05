@@ -76,7 +76,7 @@ Configuration Install_SharePointWebApp
         }
 
         # root site collection config
-        if($ensure -eq 'Present') {
+        if($ensureWebApp -eq 'Present') {
             # create root site collection if Present is set for the web app
             SPSite RootSite
             {

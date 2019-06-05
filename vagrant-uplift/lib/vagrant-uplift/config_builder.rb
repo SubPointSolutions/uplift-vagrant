@@ -677,6 +677,10 @@ module VagrantPlugins
           )
       end
 
+      def provision_win12_dsc_shortcuts(vm_name, vm_config) 
+        provision_win16_dsc_shortcuts(vm_name, vm_config) 
+      end
+
       # Provisions box with standard shortcuts
       #
       # @param vm_name [String] vagrant vm name
@@ -761,6 +765,10 @@ module VagrantPlugins
         })
       end
 
+      def provision_dc12(vm_name, vm_config) 
+        provision_dc16(vm_name, vm_config) 
+      end
+
       # Provisions domain controller and users, minimal config
       #
       # @param vm_name [String] vagrant vm name
@@ -818,6 +826,10 @@ module VagrantPlugins
         })         
       end
 
+      def provision_sp13_pre_setup(vm_name, vm_config) 
+        provision_sp16_pre_setup(vm_name, vm_config) 
+      end
+
       # Provisions SharePoint 2016 pre-setup, prepares box for SharePoint 2016 setup.
       #
       # @param vm_name [String] vagrant vm name
@@ -853,6 +865,10 @@ module VagrantPlugins
         })
       end
 
+      def provision_sp13_image_setup(vm_name, vm_config) 
+        provision_sp16_image_setup(vm_name, vm_config) 
+      end
+      
       # Prepares box for SharePoint 2016 setup. 
       # Ensures CredSSP configs and other box-wide changes
       # Normally, should be already done under packer image, this is more of a shortcut for non-uplift boxes
@@ -883,6 +899,10 @@ module VagrantPlugins
         })
       end
 
+      def provision_sp13_image_packages_setup(vm_name, vm_config) 
+        provision_sp16_image_packages_setup(vm_name, vm_config) 
+      end
+
       # Installs required packages for for SharePoint 2016 setup. 
       # Normally, should be already done under packer image, this is more of a shortcut for non-uplift boxes
       #
@@ -901,6 +921,10 @@ module VagrantPlugins
         _track_ai_event(__method__, {
           'vm_name': vm_name
         })
+      end
+
+      def provision_sp13_sp_accounts(vm_name, vm_config) 
+        provision_sp16_sp_accounts(vm_name, vm_config) 
       end
 
       # Prepares SharePoint 2016 setup accounts
@@ -926,6 +950,10 @@ module VagrantPlugins
         })
       end
 
+      def provision_sp13_sql_accounts(vm_name, vm_config) 
+        provision_sp16_sql_accounts(vm_name, vm_config) 
+      end
+
       # Prepares SharePoint 2016 accounts required for SQL
       #
       # @param vm_name [String] vagrant vm name
@@ -948,6 +976,10 @@ module VagrantPlugins
         })
       end
 
+      def provision_sp13_farm_post_setup(vm_name, vm_config) 
+        provision_sp16_farm_post_setup(vm_name, vm_config) 
+      end
+
       # Provisions SharePoint 2016 post-setup, ensures all services work
       #
       # @param vm_name [String] vagrant vm name
@@ -968,6 +1000,10 @@ module VagrantPlugins
         })
       end
 
+      def provision_sp13_print_info(vm_name, vm_config) 
+        provision_sp16_print_info(vm_name, vm_config)
+      end
+
       # Provisions SharePoint 2016 information gatherer
       #
       # @param vm_name [String] vagrant vm name
@@ -982,6 +1018,50 @@ module VagrantPlugins
         vm_config.vm.provision "shell",
             path: "#{vagrant_script_path}/vagrant/uplift.vagrant.sharepoint/sp2016.info.ps1"
 
+        _track_ai_event(__method__, {
+          'vm_name': vm_name
+        })
+      end
+
+      # Provisions SharePoint 2013 SingleServerFarm using SPFarm DSC
+      #
+      # @param vm_name [String] vagrant vm name
+      # @param vm_config [Vagrant::Config::V2::Root] vagrant vm config
+      # @param sql_server [String] sql server host name
+      # @param farm_prefix [String] sql server DBs prefix to use for the current SharePoint farm install
+      def provision_sp13_single_server_farm(vm_name, vm_config, sql_server, farm_prefix = nil, dsc_verbose: '1') 
+
+        if farm_prefix.nil? 
+          farm_prefix = "#{vm_name}_"
+        end
+
+        require_string(vm_name)
+        require_vagrant_config(vm_config)
+
+        require_string(sql_server)
+        require_string(farm_prefix)
+
+        log_info_light("#{vm_name}: SharePoint 2013: farm creation only")
+
+        # shared scripts
+        vm_config.vm.provision "file", 
+                source: "#{vagrant_script_path}/vagrant/uplift.vagrant.sharepoint/shared/sp.helpers.ps1", 
+                destination: "c:/windows/temp/uplift.vagrant.sharepoint/shared/sp.helpers.ps1"
+
+        env = {
+            "UPLF_sp_farm_sql_server_host_name"  => sql_server,
+            "UPLF_sp_farm_sql_db_prefix"         => "#{farm_prefix}_",
+            "UPLF_sp_farm_passphrase"            => "uplift!QAZ",
+            
+            "UPLF_sp_setup_user_name"     => "uplift\\vagrant",
+            "UPLF_sp_setup_user_password" => "vagrant",
+            "UPLF_DSC_VERBOSE" => dsc_verbose
+        }
+
+        vm_config.vm.provision "shell",
+            path: "#{vagrant_script_path}/vagrant/uplift.vagrant.sharepoint/sp2013.farm-only.dsc.ps1",
+            env: env     
+            
         _track_ai_event(__method__, {
           'vm_name': vm_name
         })
@@ -1029,6 +1109,10 @@ module VagrantPlugins
         _track_ai_event(__method__, {
           'vm_name': vm_name
         })
+      end
+
+      def provision_sp13_minimal_services(vm_name, vm_config, sql_server, farm_prefix = nil, dsc_verbose: '1', dsc_check: '1')
+        provision_sp16_minimal_services(vm_name, vm_config, sql_server, farm_prefix = nil, dsc_verbose: dsc_verbose, dsc_check: dsc_check)
       end
 
       # Provisions SharePoint 2016 minimal services: taxonomy, secure store, state service, search, user profile service and others
@@ -1082,6 +1166,10 @@ module VagrantPlugins
         })
 
       end 
+
+      def provision_sp13_web_application(vm_name, vm_config, dsc_verbose: '1', dsc_check: '1') 
+        provision_sp16_web_application(vm_name, vm_config, dsc_verbose: dsc_verbose, dsc_check: dsc_check) 
+      end
 
       def provision_sp16_web_application(vm_name, vm_config, dsc_verbose: '1', dsc_check: '1') 
 
