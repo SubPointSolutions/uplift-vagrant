@@ -24,7 +24,7 @@ module VagrantPlugins
       # initialize
       def initialize() 
 
-        @@supported_version = '2.2.3'
+        @@supported_version = '2.2.4'
         @@ai_config_id = SecureRandom.uuid.to_s
 
         if(Vagrant::VERSION != @@supported_version) 
@@ -657,6 +657,14 @@ module VagrantPlugins
       #
       # @param vm_name [String] vagrant vm name
       # @param vm_config [Vagrant::Config::V2::Root] vagrant vm config
+      def provision_win12_dsc_soe(vm_name, vm_config) 
+        provision_win16_dsc_soe(vm_name, vm_config) 
+      end
+
+      # Provisions box with standard config
+      #
+      # @param vm_name [String] vagrant vm name
+      # @param vm_config [Vagrant::Config::V2::Root] vagrant vm config
       def provision_win16_dsc_soe(vm_name, vm_config) 
 
         require_string(vm_name)
@@ -1029,7 +1037,7 @@ module VagrantPlugins
       # @param vm_config [Vagrant::Config::V2::Root] vagrant vm config
       # @param sql_server [String] sql server host name
       # @param farm_prefix [String] sql server DBs prefix to use for the current SharePoint farm install
-      def provision_sp13_single_server_farm(vm_name, vm_config, sql_server, farm_prefix = nil, dsc_verbose: '1') 
+      def provision_sp13_single_server_farm(vm_name, vm_config, sql_server, farm_prefix = nil, dsc_verbose: nil) 
 
         if farm_prefix.nil? 
           farm_prefix = "#{vm_name}_"
@@ -1073,7 +1081,7 @@ module VagrantPlugins
       # @param vm_config [Vagrant::Config::V2::Root] vagrant vm config
       # @param sql_server [String] sql server host name
       # @param farm_prefix [String] sql server DBs prefix to use for the current SharePoint farm install
-      def provision_sp16_single_server_farm(vm_name, vm_config, sql_server, farm_prefix = nil, dsc_verbose: '1') 
+      def provision_sp16_single_server_farm(vm_name, vm_config, sql_server, farm_prefix = nil, dsc_verbose: nil) 
 
         if farm_prefix.nil? 
           farm_prefix = "#{vm_name}_"
@@ -1111,7 +1119,7 @@ module VagrantPlugins
         })
       end
 
-      def provision_sp13_minimal_services(vm_name, vm_config, sql_server, farm_prefix = nil, dsc_verbose: '1', dsc_check: '1')
+      def provision_sp13_minimal_services(vm_name, vm_config, sql_server, farm_prefix = nil, dsc_verbose: nil, dsc_check: '1')
         provision_sp16_minimal_services(vm_name, vm_config, sql_server, farm_prefix = nil, dsc_verbose: dsc_verbose, dsc_check: dsc_check)
       end
 
@@ -1121,7 +1129,7 @@ module VagrantPlugins
       # @param vm_config [Vagrant::Config::V2::Root] vagrant vm config
       # @param sql_server [String] sql server host name
       # @param farm_prefix [String] sql server DBs prefix to use for the current SharePoint farm install
-      def provision_sp16_minimal_services(vm_name, vm_config, sql_server, farm_prefix = nil, dsc_verbose: '1', dsc_check: '1') 
+      def provision_sp16_minimal_services(vm_name, vm_config, sql_server, farm_prefix = nil, dsc_verbose: nil, dsc_check: '1') 
         
         if farm_prefix.nil? 
           farm_prefix = "#{vm_name}_"
@@ -1167,11 +1175,11 @@ module VagrantPlugins
 
       end 
 
-      def provision_sp13_web_application(vm_name, vm_config, dsc_verbose: '1', dsc_check: '1') 
+      def provision_sp13_web_application(vm_name, vm_config, dsc_verbose: nil, dsc_check: '1') 
         provision_sp16_web_application(vm_name, vm_config, dsc_verbose: dsc_verbose, dsc_check: dsc_check) 
       end
 
-      def provision_sp16_web_application(vm_name, vm_config, dsc_verbose: '1', dsc_check: '1') 
+      def provision_sp16_web_application(vm_name, vm_config, dsc_verbose: nil, dsc_check: '1') 
 
         require_string(vm_name)
         require_vagrant_config(vm_config)
@@ -1225,7 +1233,7 @@ module VagrantPlugins
       # @param max_memory [String] max memory, default 4096
       def provision_sql16_optimize(vm_name, vm_config, 
         min_memory: 1024, max_memory: 4096, instance_name: 'MSSQLSERVER',
-        dsc_verbose: '1', dsc_check: '1' ) 
+        dsc_verbose: nil, dsc_check: '1' ) 
 
         require_string(vm_name)
         require_vagrant_config(vm_config)

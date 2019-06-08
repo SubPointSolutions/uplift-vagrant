@@ -77,7 +77,18 @@ Configuration SOE_Shortcuts
         }
     }
 
-    # sharepoint ca
+    # SharePoint 2013 CA
+    $sp13centralAdministration = "C:\Program Files\Common Files\microsoft shared\Web Server Extensions\15\BIN\psconfigui.exe"
+    if( (Test-Path $sp13centralAdministration) -eq $True) {
+        cShortcut SP2013CA
+        {
+            Path      = "$desktopPath\SharePoint Central Administration.lnk"
+            Target    = $sp13centralAdministration
+            Arguments = "-cmd showcentraladmin"
+        }
+    }
+
+    # SharePoint 2016 CA
     $sp16centralAdministration = "C:\Program Files\Common Files\microsoft shared\Web Server Extensions\16\BIN\psconfigui.exe"
     if( (Test-Path $sp16centralAdministration) -eq $True) {
         cShortcut SP2016CA
