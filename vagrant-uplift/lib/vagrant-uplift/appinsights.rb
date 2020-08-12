@@ -7,7 +7,7 @@ module VagrantPlugins::Uplift
 
             require 'date'
             require 'uri'
-            require 'net\http'
+            require 'net/http'
             require 'openssl'
             require 'json'            
 
